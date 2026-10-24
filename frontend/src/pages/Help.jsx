@@ -9,8 +9,8 @@ function Help() {
         setOpenFAQ(openFAQ === index ? null : index);
     };
     const openAIChat = () => {
-            window.location.href = "https://zynvo.ai/";
-        };
+        window.dispatchEvent(new CustomEvent("open-ai-chat"));
+    };
     const faqs = [
         {
             question: "How do I place an order?",

@@ -468,7 +468,7 @@ import {
   useLocation,
 } from "react-router-dom";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import ScrollToTop from "./components/ScrollToTop";
 
@@ -519,10 +519,19 @@ import AddCoupon from "./admin/AddCoupon";
 import "./App.css";
 import Zenvefashion from "./pages/Zenvefashion.jsx";
 import ZPetNavigation from "./components/ZPetNavigation";
+import AIChat from "./pages/AIChat";
+import AIChatModal from "./components/AIChatModal";
 
 
 function AppContent() {
   const [showSidebar, setShowSidebar] = useState(true);
+  const [isAiModalOpen, setIsAiModalOpen] = useState(false);
+
+  useEffect(() => {
+    const handleOpenAiChat = () => setIsAiModalOpen(true);
+    window.addEventListener("open-ai-chat", handleOpenAiChat);
+    return () => window.removeEventListener("open-ai-chat", handleOpenAiChat);
+  }, []);
 
   const location = useLocation();
 
@@ -671,6 +680,12 @@ function AppContent() {
             <Route
               path="/help"
               element={<Help />}
+            />
+
+            {/* AI Chat Assistant */}
+            <Route
+              path="/ai-chat"
+              element={<AIChat />}
             />
 
 
@@ -939,6 +954,12 @@ function AppContent() {
 
       {/* Floating Interactive Z Pet Navigation */}
       {!hideLayout && <ZPetNavigation />}
+
+      {/* Global Zynvo AI Assistant Drawer */}
+      <AIChatModal
+        isOpen={isAiModalOpen}
+        onClose={() => setIsAiModalOpen(false)}
+      />
 
     </>
   );

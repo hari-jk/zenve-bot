@@ -46,11 +46,7 @@ function Navbar() {
     const token = localStorage.getItem("access");
 
     const openAIChat = () => {
-        window.open(
-            "https://zynvo.ai/",
-            "_blank",
-            "noopener,noreferrer"
-        );
+        window.dispatchEvent(new CustomEvent("open-ai-chat"));
     };
 
     const isAdminOrStaff =

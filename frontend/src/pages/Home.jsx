@@ -1096,11 +1096,7 @@ function Home() {
     // =====================================================
 
     const openAIChat = () => {
-        window.open(
-            "https://zynvo.ai/",
-            "_blank",
-            "noopener,noreferrer"
-        );
+        window.dispatchEvent(new CustomEvent("open-ai-chat"));
     };
 
     // =====================================================

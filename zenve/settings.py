@@ -64,6 +64,7 @@ INSTALLED_APPS = [
     'payments',
     'membership',
     'wallet',
+    'chatbot',
 
 ]
 SITE_ID = 1

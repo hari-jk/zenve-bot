@@ -37,6 +37,7 @@ def api_root(request):
             "payments": "/api/payments/",
             "membership": "/api/membership/",
             "wallet": "/api/wallet/",
+            "chat": "/api/chat/",
             "admin": "/admin/",
         }
     })
@@ -55,6 +56,7 @@ urlpatterns = [
     path("api/payments/",include("payments.urls")),
     path("api/membership/",include("membership.urls")),
     path("api/wallet/", include("wallet.urls")),
+    path("api/chat/", include("chatbot.urls")),
 ]
 if settings.DEBUG:
     urlpatterns += static(
