@@ -521,6 +521,7 @@ import Zenvefashion from "./pages/Zenvefashion.jsx";
 import ZPetNavigation from "./components/ZPetNavigation";
 import AIChat from "./pages/AIChat";
 import AIChatModal from "./components/AIChatModal";
+import FloatingChatButton from "./components/FloatingChatButton";
 
 
 function AppContent() {
@@ -954,6 +955,14 @@ function AppContent() {
 
       {/* Floating Interactive Z Pet Navigation */}
       {!hideLayout && <ZPetNavigation />}
+
+      {/* Floating Always-Visible AI Assistant Button */}
+      {!hideLayout && (
+        <FloatingChatButton
+          isOpen={isAiModalOpen}
+          onClick={() => setIsAiModalOpen((prev) => !prev)}
+        />
+      )}
 
       {/* Global Zynvo AI Assistant Drawer */}
       <AIChatModal
