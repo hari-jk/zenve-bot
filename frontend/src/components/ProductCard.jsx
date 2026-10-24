@@ -1,0 +1,526 @@
+import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import axios from "axios";
+
+import {
+    FaHeart,
+    FaRegHeart,
+    FaStar,
+    FaShoppingCart
+} from "react-icons/fa";
+
+import {
+    showSuccessAlert,
+    showErrorAlert,
+    showWarningAlert,
+} from "../utils/sweetAlert";
+
+import ExplainModal from "./ExplainModal";
+import "../styles/ProductCard.css";
+
+
+function ProductCard({ product, pet = null, onFeedbackSubmitted = null }) {
+
+    const navigate = useNavigate();
+
+    const [inWishlist, setInWishlist] = useState(false);
+    const [showExplain, setShowExplain] = useState(false);
+
+    const token = localStorage.getItem("access");
+
+
+    /* =====================================================
+       CHECK WISHLIST
+       ===================================================== */
+
+    useEffect(() => {
+
+        if (token) {
+            checkWishlist();
+        }
+
+    }, [product.id]);
+
+
+    const checkWishlist = async () => {
+
+        try {
+
+            const response = await axios.get(
+                "http://127.0.0.1:8000/api/wishlist/",
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                }
+            );
+
+
+            const exists = response.data.some((item) => {
+
+                if (item.product_id) {
+
+                    return item.product_id === product.id;
+
+                }
+
+
+                if (item.product) {
+
+                    return (
+                        item.product === product.id ||
+                        item.product.id === product.id
+                    );
+
+                }
+
+                return false;
+
+            });
+
+
+            setInWishlist(exists);
+
+        }
+        catch (error) {
+
+            console.log(
+                "Wishlist Check Error:",
+                error.response?.data
+            );
+
+        }
+
+    };
+
+
+    /* =====================================================
+       WISHLIST TOGGLE
+       ===================================================== */
+
+    const toggleWishlist = async (e) => {
+
+        e.stopPropagation();
+
+        if (!token) {
+
+            navigate("/login");
+
+            return;
+
+        }
+
+
+        try {
+
+            const response = await axios.post(
+
+                "http://127.0.0.1:8000/api/wishlist/toggle/",
+
+                {
+                    product_id: product.id
+                },
+
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                }
+
+            );
+
+
+            setInWishlist(
+                response.data.in_wishlist
+            );
+
+
+            /* =================================================
+               WISHLIST SUCCESS MESSAGE
+            ================================================= */
+
+            if (response.data.in_wishlist) {
+
+                showSuccessAlert(
+                    "Product added to wishlist!"
+                );
+
+            }
+            else {
+
+                showSuccessAlert(
+                    "Product removed from wishlist!"
+                );
+
+            }
+
+        }
+        catch (error) {
+
+            console.log(
+                "Toggle Wishlist Error:",
+                error.response?.data
+            );
+
+
+            showErrorAlert(
+                error.response?.data?.detail ||
+                "Failed to update wishlist."
+            );
+
+        }
+
+    };
+
+
+    /* =====================================================
+       ADD TO CART
+       ===================================================== */
+
+    const addToCart = async (e) => {
+
+        e.stopPropagation();
+
+
+        /* =================================================
+           USER NOT LOGGED IN
+        ================================================= */
+
+        if (!token) {
+
+            localStorage.setItem(
+                "pendingCartProduct",
+                JSON.stringify({
+                    product_id: product.id,
+                    quantity: 1
+                })
+            );
+
+            navigate("/login");
+
+            return;
+
+        }
+
+
+        /* =================================================
+           OUT OF STOCK
+        ================================================= */
+
+        if (product.stock <= 0) {
+
+            showWarningAlert(
+                "Product is out of stock!"
+            );
+
+            return;
+
+        }
+
+
+        try {
+
+            await axios.post(
+
+                "http://127.0.0.1:8000/api/cart/add/",
+
+                {
+                    product_id: product.id,
+                    quantity: 1
+                },
+
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                }
+
+            );
+
+
+            /* =================================================
+               CART SUCCESS MESSAGE
+            ================================================= */
+
+            showSuccessAlert(
+                "Product added to cart!"
+            );
+
+        }
+        catch (error) {
+
+            console.log(
+                "Cart Error:",
+                error.response?.data
+            );
+
+
+            /* =================================================
+               CART ERROR MESSAGE
+            ================================================= */
+
+            showErrorAlert(
+                error.response?.data?.detail ||
+                error.response?.data?.message ||
+                "Failed to add product to cart."
+            );
+
+        }
+
+    };
+
+
+    /* =====================================================
+       BUY / PRODUCT DETAILS
+       ===================================================== */
+
+    const openProduct = () => {
+
+        navigate(`/products/${product.id}`);
+
+    };
+
+
+    /* =====================================================
+       IMAGE URL
+       ===================================================== */
+
+    const imageURL = product.image
+        ? (
+            product.image.startsWith("http")
+                ? product.image
+                : `http://127.0.0.1:8000${product.image}`
+        )
+        : "https://via.placeholder.com/300x200";
+
+
+    /* =====================================================
+       PRICE
+       ===================================================== */
+
+    const currentPrice = Number(product.price || 0);
+
+    const oldPrice = Math.round(
+        currentPrice * 1.20
+    );
+
+
+    /* =====================================================
+       RATING
+       ===================================================== */
+
+    const rating = Number(
+        product.average_rating || 0
+    );
+
+
+    /* =====================================================
+       RETURN
+       ===================================================== */
+
+    return (
+
+        <div
+            className="market-product-card"
+            onClick={openProduct}
+        >
+
+
+            {/* =================================================
+                PRODUCT IMAGE AREA
+            ================================================= */}
+
+            <div className="market-product-image">
+
+                {/* DISCOUNT OR RECOMMENDATION BADGE */}
+                {product.recommendation ? (
+                    <span
+                        className="product-match-tag"
+                        style={{ backgroundColor: product.recommendation.match_color || "#10b981" }}
+                    >
+                        {product.recommendation.match_score}% Match
+                    </span>
+                ) : product.related_explanation ? (
+                    <span className="product-match-tag related-tag">
+                        {product.related_explanation.relationship_badge || "🛒 Bundle"}
+                    </span>
+                ) : (
+                    <span className="product-discount">
+                        -20%
+                    </span>
+                )}
+
+                {/* WISHLIST */}
+
+                <button
+                    className="product-wishlist"
+                    onClick={toggleWishlist}
+                >
+
+                    {inWishlist ? (
+
+                        <FaHeart />
+
+                    ) : (
+
+                        <FaRegHeart />
+
+                    )}
+
+                </button>
+
+
+                {/* IMAGE */}
+
+                <img
+                    src={imageURL}
+                    alt={product.product_name}
+                />
+
+            </div>
+
+
+
+            {/* =================================================
+                PRODUCT CONTENT
+            ================================================= */}
+
+            <div className="market-product-content">
+
+                {/* RECOMMENDATION EXPLANATION SNIPPET */}
+                {(product.recommendation || product.related_explanation) && (
+                    <div
+                        className="market-product-rec-reason"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            setShowExplain(true);
+                        }}
+                    >
+                        <span className="rec-sparkle">✨</span>
+                        <span className="rec-text" title="Click to view explanation">
+                            {product.recommendation?.primary_reason || product.related_explanation?.explanation}
+                        </span>
+                        <button
+                            type="button"
+                            className="rec-why-btn"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                setShowExplain(true);
+                            }}
+                            title="See Why This Was Recommended"
+                        >
+                            Why?
+                        </button>
+                    </div>
+                )}
+
+                {/* PRODUCT NAME */}
+
+                <h3 className="market-product-title">
+
+                    {product.product_name}
+
+                </h3>
+
+
+
+                {/* RATING */}
+
+                <div className="market-product-rating">
+
+                    <div className="stars">
+
+                        {[1, 2, 3, 4, 5].map((star) => (
+
+                            <FaStar
+                                key={star}
+                                className={
+                                    star <= Math.round(rating)
+                                        ? "star-active"
+                                        : "star-inactive"
+                                }
+                            />
+
+                        ))}
+
+                    </div>
+
+
+                    <span>
+                        ({rating.toFixed(1)})
+                    </span>
+
+                </div>
+
+
+
+                {/* PRICE */}
+
+                <div className="market-product-price">
+
+                    <span className="current-price">
+                        ₹{currentPrice.toLocaleString("en-IN")}
+                    </span>
+
+                    <span className="old-price">
+                        ₹{oldPrice.toLocaleString("en-IN")}
+                    </span>
+
+                </div>
+
+
+
+                {/* BUTTONS */}
+
+                <div
+                    className="market-product-actions"
+                    onClick={(e) => e.stopPropagation()}
+                >
+
+                    <button
+                        className="market-add-cart"
+                        onClick={addToCart}
+                        disabled={product.stock <= 0}
+                    >
+
+                        {product.stock > 0
+                            ? "Add to Cart"
+                            : "Out of Stock"
+                        }
+
+                    </button>
+
+
+                    <button
+                        className="market-cart-icon"
+                        onClick={addToCart}
+                        disabled={product.stock <= 0}
+                        aria-label="Add to cart"
+                    >
+
+                        <FaShoppingCart />
+
+                    </button>
+
+                </div>
+
+
+            </div>
+
+            {/* EXPLAINABILITY MODAL */}
+            <ExplainModal
+                product={product}
+                pet={pet}
+                isOpen={showExplain}
+                onClose={() => setShowExplain(false)}
+                onFeedbackSubmitted={onFeedbackSubmitted}
+            />
+
+        </div>
+
+    );
+
+}
+
+
+export default ProductCard;

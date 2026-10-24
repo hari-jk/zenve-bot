@@ -1,0 +1,1305 @@
+/* =========================================================
+   PAYMENT PAGE
+========================================================= */
+
+.payment-page {
+    min-height: 100vh;
+    background:
+        radial-gradient(circle at top left, rgba(91, 75, 219, 0.08), transparent 35%),
+        #f5f7fc;
+    padding: 35px 0 70px;
+    color: #202124;
+}
+
+/* =========================================================
+   MAIN CARDS
+========================================================= */
+
+.premium-card,
+.premium-summary {
+    background: #ffffff;
+    border: 1px solid #e8eaf2;
+    border-radius: 22px;
+    box-shadow: 0 12px 35px rgba(31, 41, 75, 0.07);
+}
+
+.premium-card {
+    padding: 28px;
+    margin-bottom: 24px;
+}
+
+.premium-summary {
+    padding: 22px;
+    position: sticky;
+    top: 90px;
+    overflow: hidden;
+}
+
+/* =========================================================
+   SECTION HEADING
+   MATCHES JSX: section-heading
+========================================================= */
+
+.section-heading {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 24px;
+}
+
+.heading-icon {
+    width: 48px;
+    height: 48px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #eef0ff, #f5f3ff);
+    color: #1b1bc5;
+    font-size: 21px;
+    box-shadow: 0 5px 15px rgba(27, 27, 197, 0.08);
+}
+
+.section-heading span {
+    display: block;
+    margin-bottom: 3px;
+    color: #1b1bc5;
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: 1.8px;
+}
+
+.section-heading h3 {
+    margin: 0;
+    color: #17171b;
+    font-size: 22px;
+    font-weight: 800;
+    line-height: 1.2;
+}
+
+/* =========================================================
+   PAYMENT OPTIONS
+========================================================= */
+
+.payment-options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+}
+
+.payment-option {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-height: 82px;
+    padding: 16px;
+    border: 2px solid #e7e8ef;
+    border-radius: 16px;
+    cursor: pointer;
+    background: #ffffff;
+    transition:
+        border-color 0.25s ease,
+        background 0.25s ease,
+        transform 0.25s ease,
+        box-shadow 0.25s ease;
+}
+
+.payment-option:hover {
+    border-color: #b7b9f7;
+    background: #fafaff;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(27, 27, 197, 0.07);
+}
+
+.payment-option.active {
+    border-color: #1b1bc5;
+    background: linear-gradient(
+        135deg,
+        #f5f5ff,
+        #fafaff
+    );
+    box-shadow: 0 8px 22px rgba(27, 27, 197, 0.10);
+}
+
+.payment-option input {
+    display: none;
+}
+
+.payment-option-icon {
+    width: 46px;
+    height: 46px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 13px;
+    background: #eef0ff;
+    color: #1b1bc5;
+    font-size: 20px;
+}
+
+.payment-option.active .payment-option-icon {
+    background: #1b1bc5;
+    color: #ffffff;
+}
+
+.payment-option strong {
+    display: block;
+    color: #24242a;
+    font-size: 14px;
+    font-weight: 750;
+}
+
+.payment-option small {
+    display: block;
+    margin-top: 4px;
+    color: #85858f;
+    font-size: 11px;
+    line-height: 1.4;
+}
+
+/* =========================================================
+   WALLET PAYMENT OPTION
+========================================================= */
+
+.wallet-payment-option {
+    position: relative;
+}
+
+.wallet-payment-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.wallet-icon {
+    background: #f1efff;
+    color: #5b4bdb;
+}
+
+.payment-option.active .wallet-icon {
+    background: #5b4bdb;
+    color: #ffffff;
+}
+
+.wallet-option-status {
+    padding: 5px 10px;
+    border-radius: 30px;
+    font-size: 10px;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.wallet-option-status.available {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+.wallet-option-status.insufficient {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+/* =========================================================
+   ADDRESS SECTION
+========================================================= */
+
+.address-section {
+    margin-top: 0;
+}
+
+.address-loader {
+    min-height: 150px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #777;
+    font-size: 14px;
+}
+
+/* =========================================================
+   SELECTED ADDRESS
+   MATCHES JSX: selected-address-card
+========================================================= */
+
+.selected-address-card {
+    padding: 20px;
+    border: 2px solid #dfe2ff;
+    border-radius: 17px;
+    background:
+        linear-gradient(
+            135deg,
+            #fafaff,
+            #f8f8ff
+        );
+    transition: 0.25s ease;
+}
+
+.selected-address-card:hover {
+    border-color: #bfc3ff;
+    box-shadow: 0 8px 22px rgba(27, 27, 197, 0.07);
+}
+
+/* =========================================================
+   ADDRESS TOP
+========================================================= */
+
+.address-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+}
+
+.address-name {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 9px;
+}
+
+.address-name > svg {
+    width: 36px;
+    height: 36px;
+    padding: 9px;
+    border-radius: 10px;
+    background: #eef0ff;
+    color: #1b1bc5;
+    font-size: 16px;
+}
+
+.address-name strong {
+    color: #202124;
+    font-size: 16px;
+    font-weight: 800;
+}
+
+.default-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 9px;
+    border-radius: 30px;
+    background: #e7f8ed;
+    color: #198754;
+    font-size: 10px;
+    font-weight: 800;
+}
+
+.default-badge svg {
+    font-size: 9px;
+}
+
+.delete-address-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 11px;
+    border: 1px solid #ffd6da;
+    border-radius: 9px;
+    background: #fff5f6;
+    color: #dc3545;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.delete-address-btn:hover {
+    background: #fee2e2;
+    border-color: #fecaca;
+}
+
+/* =========================================================
+   ADDRESS CONTENT
+========================================================= */
+
+.address-content {
+    margin-top: 17px;
+    margin-left: 45px;
+    padding-top: 15px;
+    border-top: 1px solid #e9eaf4;
+}
+
+.address-content p {
+    margin: 5px 0;
+    color: #555b67;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.phone-line {
+    margin-top: 10px !important;
+    color: #333 !important;
+    font-weight: 700;
+}
+
+/* =========================================================
+   NO ADDRESS
+   MATCHES JSX: no-address-box
+========================================================= */
+
+.no-address-box {
+    position: relative;
+    text-align: center;
+    padding: 34px 25px;
+    border: 2px dashed #d8dbea;
+    border-radius: 18px;
+    background:
+        linear-gradient(
+            135deg,
+            #fbfbff,
+            #f7f8fc
+        );
+}
+
+.no-address-box > svg {
+    width: 58px;
+    height: 58px;
+    padding: 17px;
+    margin-bottom: 14px;
+    border-radius: 50%;
+    background: #eef0ff;
+    color: #1b1bc5;
+    font-size: 22px;
+}
+
+.no-address-box h4 {
+    margin: 0 0 7px;
+    color: #25252b;
+    font-size: 19px;
+    font-weight: 800;
+}
+
+.no-address-box p {
+    max-width: 390px;
+    margin: 0 auto 18px;
+    color: #777d89;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+/* =========================================================
+   ADD ADDRESS BUTTON
+   MATCHES JSX: add-address-main-btn
+========================================================= */
+
+.add-address-main-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    min-height: 43px;
+    padding: 0 18px;
+    border: 1px solid #1b1bc5;
+    border-radius: 10px;
+    background: #ffffff;
+    color: #1b1bc5;
+    font-size: 13px;
+    font-weight: 750;
+    cursor: pointer;
+    transition: 0.25s ease;
+}
+
+.add-address-main-btn:hover {
+    background: #1b1bc5;
+    color: #ffffff;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 18px rgba(27, 27, 197, 0.18);
+}
+
+/* =========================================================
+   ADDRESS FORM
+========================================================= */
+
+.address-form {
+    margin-top: 20px;
+    padding: 23px;
+    border: 1px solid #e1e3ed;
+    border-radius: 17px;
+    background: #f9faff;
+}
+
+.form-header {
+    margin-bottom: 20px;
+}
+
+.form-header h4 {
+    margin: 0 0 4px;
+    color: #25252b;
+    font-size: 18px;
+    font-weight: 800;
+}
+
+.form-header p {
+    margin: 0;
+    color: #7b7f89;
+    font-size: 12px;
+}
+
+/* =========================================================
+   FORM INPUTS
+========================================================= */
+
+.address-form label {
+    display: block;
+    margin-bottom: 6px;
+    color: #36383f;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.address-form .form-control {
+    min-height: 45px;
+    border: 1px solid #dcdfe8;
+    border-radius: 10px;
+    background: #ffffff;
+    color: #22242a;
+    font-size: 13px;
+    box-shadow: none;
+    transition: 0.2s ease;
+}
+
+.address-form .form-control::placeholder {
+    color: #a1a4ad;
+}
+
+.address-form .form-control:focus {
+    border-color: #1b1bc5;
+    box-shadow: 0 0 0 3px rgba(27, 27, 197, 0.08);
+}
+
+/* =========================================================
+   ADDRESS FORM BUTTONS
+   MATCHES JSX: address-form-buttons
+========================================================= */
+
+.address-form-buttons {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 10px;
+    margin-top: 8px;
+}
+
+.cancel-address-btn,
+.save-address-btn {
+    min-height: 42px;
+    padding: 0 17px;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 750;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.cancel-address-btn {
+    border: 1px solid #dedfe6;
+    background: #ffffff;
+    color: #555;
+}
+
+.cancel-address-btn:hover {
+    background: #f1f2f5;
+}
+
+.save-address-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border: none;
+    background: linear-gradient(
+        135deg,
+        #1b1bc5,
+        #4d5cff
+    );
+    color: #ffffff;
+    box-shadow: 0 7px 16px rgba(27, 27, 197, 0.18);
+}
+
+.save-address-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 22px rgba(27, 27, 197, 0.25);
+}
+
+.save-address-btn svg {
+    font-size: 11px;
+}
+
+/* =========================================================
+   SUMMARY
+========================================================= */
+
+.premium-summary {
+    overflow: hidden;
+}
+
+/* =========================================================
+   COUPON
+========================================================= */
+
+.coupon-section {
+    padding-bottom: 18px;
+    border-bottom: 1px solid #ededf2;
+}
+
+.coupon-header {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    margin-bottom: 13px;
+}
+
+.coupon-header > svg {
+    width: 39px;
+    height: 39px;
+    padding: 10px;
+    border-radius: 10px;
+    background: #eef0ff;
+    color: #1b1bc5;
+    font-size: 16px;
+}
+
+.coupon-header strong {
+    display: block;
+    color: #25252b;
+    font-size: 14px;
+    font-weight: 800;
+}
+
+.coupon-header small {
+    display: block;
+    margin-top: 2px;
+    color: #888;
+    font-size: 10px;
+}
+
+/* =========================================================
+   COUPON INPUT
+========================================================= */
+
+.coupon-input {
+    display: flex;
+    gap: 8px;
+}
+
+.coupon-input input {
+    flex: 1;
+    min-width: 0;
+    height: 43px;
+    padding: 0 12px;
+    border: 1px solid #dfe1e8;
+    border-radius: 9px;
+    outline: none;
+    background: #ffffff;
+    color: #333;
+    font-size: 12px;
+    transition: 0.2s ease;
+}
+
+.coupon-input input:focus {
+    border-color: #1b1bc5;
+    box-shadow: 0 0 0 3px rgba(27, 27, 197, 0.06);
+}
+
+.coupon-input button {
+    width: 78px;
+    border: none;
+    border-radius: 9px;
+    background: #1b1bc5;
+    color: #ffffff;
+    font-size: 11px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.coupon-input button:hover {
+    background: #11119e;
+}
+
+.coupon-input button:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+/* =========================================================
+   COUPON MESSAGE
+   MATCHES JSX
+========================================================= */
+
+.coupon-success,
+.coupon-error {
+    margin: 8px 0 0;
+    padding: 8px 10px;
+    border-radius: 7px;
+    font-size: 11px;
+    font-weight: 650;
+}
+
+.coupon-success {
+    background: #e9f8ef;
+    color: #198754;
+}
+
+.coupon-error {
+    background: #fff0f0;
+    color: #dc3545;
+}
+
+/* =========================================================
+   SUMMARY HEADING
+   MATCHES JSX: summary-heading
+========================================================= */
+
+.summary-heading {
+    padding: 19px 0 3px;
+}
+
+.summary-heading span {
+    display: block;
+    color: #999;
+    font-size: 9px;
+    font-weight: 900;
+    letter-spacing: 1.5px;
+}
+
+.summary-heading h3 {
+    margin: 4px 15px 0;
+    color: #2d3f9a;
+    font-size: 20px;
+    font-weight: 850;
+}
+
+/* =========================================================
+   MEMBERSHIP
+========================================================= */
+
+.membership-loading {
+    padding: 15px;
+    margin: 15px 0;
+    border-radius: 12px;
+    background: #f7f7fb;
+    color: #777;
+    text-align: center;
+    font-size: 12px;
+}
+
+.membership-ad {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin: 15px 0;
+    padding: 15px;
+    border: 1px solid #f5d36c;
+    border-radius: 14px;
+    background: linear-gradient(
+        135deg,
+        #fff8dd,
+        #fff0b8
+    );
+}
+
+.membership-ad.active-membership {
+    border-color: #b8e2c2;
+    background: linear-gradient(
+        135deg,
+        #eef9f0,
+        #e2f6e7
+    );
+}
+
+.membership-ad-icon {
+    width: 38px;
+    height: 38px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    background: #ffffff;
+    color: #d69600;
+    font-size: 17px;
+}
+
+.active-membership .membership-ad-icon {
+    color: #198754;
+}
+
+.membership-ad-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.membership-ad-label {
+    display: block;
+    color: #b77a00;
+    font-size: 9px;
+    letter-spacing: 1px;
+    font-weight: 900;
+}
+
+.active-membership .membership-ad-label {
+    color: #198754;
+}
+
+.membership-ad h4 {
+    margin: 3px 0 5px;
+    color: #282828;
+    font-size: 14px;
+    font-weight: 800;
+}
+
+.membership-ad p {
+    margin: 0;
+    color: #6e5d2c;
+    font-size: 10px;
+    line-height: 1.5;
+}
+
+.active-membership .membership-ad p {
+    color: #55705c;
+}
+
+.membership-ad button {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 9px;
+    padding: 7px 11px;
+    border: none;
+    border-radius: 7px;
+    background: #c48a00;
+    color: #ffffff;
+    font-size: 10px;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.membership-ad button:hover {
+    background: #a97500;
+}
+
+.membership-percent {
+    padding: 5px 8px;
+    border-radius: 20px;
+    background: #ffffff;
+    color: #198754;
+    font-size: 11px;
+    font-weight: 900;
+    white-space: nowrap;
+}
+
+/* =========================================================
+   WALLET SUMMARY
+========================================================= */
+
+.wallet-summary-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    padding: 15px;
+    margin: 18px 0;
+    border: 1px solid #ddd6fe;
+    border-radius: 13px;
+    background: #f5f3ff;
+}
+
+.wallet-summary-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.wallet-summary-icon {
+    width: 44px;
+    height: 44px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 11px;
+    background: #ffffff;
+    color: #5b4bdb;
+    font-size: 19px;
+}
+
+.wallet-summary-label {
+    display: block;
+    margin-bottom: 3px;
+    color: #6b7280;
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 0.8px;
+}
+
+.wallet-summary-card h4 {
+    margin: 0;
+    color: #111827;
+    font-size: 19px;
+    font-weight: 850;
+}
+
+.wallet-status {
+    padding: 5px 9px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 800;
+}
+
+.wallet-status.available {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+.wallet-status.insufficient {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+/* =========================================================
+   PRODUCTS
+========================================================= */
+
+.summary-products {
+    display: flex;
+    flex-direction: column;
+    gap: 11px;
+    margin-top: 16px;
+}
+
+.summary-product {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 0;
+}
+
+.summary-product > span:first-child {
+    max-width: 230px;
+    overflow: hidden;
+    color: #36363d;
+    font-size: 12px;
+    font-weight: 650;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.summary-product > span:last-child {
+    flex-shrink: 0;
+    color: #555;
+    font-size: 11px;
+    font-weight: 750;
+}
+
+/* =========================================================
+   HR
+========================================================= */
+
+.premium-summary hr {
+    height: 1px;
+    margin: 15px 0;
+    border: none;
+    background: #ededf1;
+}
+
+/* =========================================================
+   SUMMARY ROW
+========================================================= */
+
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 11px;
+    color: #68686f;
+    font-size: 12px;
+}
+
+.summary-row > span:last-child {
+    color: #36363d;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.summary-row svg {
+    margin-right: 5px;
+    vertical-align: middle;
+}
+
+.discount-row {
+    color: #198754;
+}
+
+.discount-row > span:last-child {
+    color: #198754;
+}
+
+.coupon-discount-row {
+    color: #7554d9;
+}
+
+.coupon-discount-row > span:last-child {
+    color: #7554d9;
+}
+
+/* =========================================================
+   FINAL TOTAL
+========================================================= */
+
+.summary-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding-top: 3px;
+}
+
+.summary-total > span:first-child {
+    color: #25252b;
+    font-size: 14px;
+    font-weight: 850;
+}
+
+.summary-total > span:last-child {
+    color: #1b1bc5;
+    font-size: 23px;
+    font-weight: 900;
+    white-space: nowrap;
+}
+
+/* =========================================================
+   WALLET SHORTAGE
+========================================================= */
+
+.wallet-shortage-box {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 13px;
+    margin: 15px 0;
+    border: 1px solid #fecdd3;
+    border-radius: 10px;
+    background: #fff1f2;
+    color: #be123c;
+}
+
+.wallet-shortage-box > svg {
+    flex-shrink: 0;
+    margin-top: 3px;
+}
+
+.wallet-shortage-box strong {
+    display: block;
+    margin-bottom: 4px;
+    font-size: 12px;
+}
+
+.wallet-shortage-box p {
+    margin: 0;
+    font-size: 11px;
+    line-height: 1.5;
+}
+
+/* =========================================================
+   PLACE ORDER
+========================================================= */
+
+.place-order-btn {
+    width: 100%;
+    min-height: 52px;
+    margin-top: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    border: none;
+    border-radius: 12px;
+    background: linear-gradient(
+        135deg,
+        #1b1bc5,
+        #4d5cff
+    );
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 850;
+    cursor: pointer;
+    transition: 0.25s ease;
+    box-shadow: 0 8px 18px rgba(27, 27, 197, 0.15);
+}
+
+.place-order-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 25px rgba(27, 27, 197, 0.25);
+}
+
+.place-order-btn:disabled {
+    background: #a6a6a6;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* =========================================================
+   SECURITY
+========================================================= */
+
+.secure-box {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 6px;
+    margin-top: 15px;
+    padding: 13px 5px;
+    border-top: 1px solid #eee;
+    border-bottom: 1px solid #eee;
+}
+
+.secure-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    color: #777;
+    font-size: 8px;
+    text-align: center;
+}
+
+.secure-item svg {
+    color: #1b1bc5;
+    font-size: 15px;
+}
+
+/* =========================================================
+   OLD CLASS COMPATIBILITY
+   Keeps older JSX/CSS working if used elsewhere
+========================================================= */
+
+.card-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 25px;
+}
+
+.card-heading h3 {
+    margin: 4px 0 5px;
+    font-size: 23px;
+    font-weight: 800;
+}
+
+.card-heading p {
+    margin: 0;
+    color: #777;
+    font-size: 14px;
+}
+
+.address-loading {
+    min-height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #777;
+}
+
+.loading-spinner {
+    width: 22px;
+    height: 22px;
+    border: 3px solid #ddd;
+    border-top-color: #1b1bc5;
+    border-radius: 50%;
+    animation: payment-spin 0.8s linear infinite;
+}
+
+@keyframes payment-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 991px) {
+
+    .premium-summary {
+        position: static;
+    }
+
+}
+
+/* =========================================================
+   TABLET / MOBILE
+========================================================= */
+
+@media (max-width: 768px) {
+
+    .payment-page {
+        padding: 25px 0 50px;
+    }
+
+    .premium-card {
+        padding: 20px;
+    }
+
+    .premium-summary {
+        padding: 18px;
+    }
+
+    .payment-options {
+        grid-template-columns: 1fr;
+    }
+
+    .section-heading h3 {
+        font-size: 20px;
+    }
+
+    .address-top {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .delete-address-btn {
+        align-self: flex-end;
+    }
+
+    .address-content {
+        margin-left: 0;
+    }
+
+    .summary-total > span:last-child {
+        font-size: 20px;
+    }
+
+}
+
+/* =========================================================
+   SMALL MOBILE
+========================================================= */
+
+@media (max-width: 500px) {
+
+    .payment-page {
+        padding-top: 15px;
+    }
+
+    .premium-card {
+        padding: 16px;
+        border-radius: 17px;
+    }
+
+    .premium-summary {
+        padding: 15px;
+        border-radius: 17px;
+    }
+
+    .section-heading {
+        gap: 10px;
+    }
+
+    .heading-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: 11px;
+        font-size: 18px;
+    }
+
+    .section-heading h3 {
+        font-size: 18px;
+    }
+
+    .payment-option {
+        min-height: 72px;
+        padding: 12px;
+    }
+
+    .payment-option-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 18px;
+    }
+
+    .payment-option strong {
+        font-size: 13px;
+    }
+
+    .payment-option small {
+        font-size: 10px;
+    }
+
+    .selected-address-card {
+        padding: 15px;
+    }
+
+    .address-name strong {
+        font-size: 14px;
+    }
+
+    .address-content {
+        padding-top: 12px;
+    }
+
+    .address-content p {
+        font-size: 12px;
+    }
+
+    .no-address-box {
+        padding: 28px 15px;
+    }
+
+    .no-address-box h4 {
+        font-size: 17px;
+    }
+
+    .no-address-box p {
+        font-size: 12px;
+    }
+
+    .address-form {
+        padding: 16px;
+    }
+
+    .address-form-buttons {
+        flex-direction: column-reverse;
+    }
+
+    .cancel-address-btn,
+    .save-address-btn {
+        width: 100%;
+    }
+
+    .coupon-input {
+        flex-direction: column;
+    }
+
+    .coupon-input button {
+        width: 100%;
+        height: 42px;
+    }
+
+    .wallet-summary-card {
+        align-items: flex-start;
+        padding: 13px;
+    }
+
+    .wallet-option-status {
+        font-size: 9px;
+        padding: 4px 7px;
+    }
+
+    .secure-box {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .secure-item {
+        flex-direction: row;
+        justify-content: center;
+    }
+
+}
