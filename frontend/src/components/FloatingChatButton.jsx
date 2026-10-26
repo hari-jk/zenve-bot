@@ -7,14 +7,14 @@ export default function FloatingChatButton({ isOpen, onClick }) {
       type="button"
       className="zynvo-floating-chat-trigger"
       onClick={onClick}
-      aria-label={isOpen ? "Close Zynvo AI Assistant" : "Open Zynvo AI Assistant"}
-      title="Chat with Zynvo AI Pet Assistant"
+      aria-label={isOpen ? "Close Help Assistant" : "Open Help Assistant"}
+      title="Help Assistant"
     >
       <span className="zynvo-floating-icon" aria-hidden="true">
         {isOpen ? "✕" : "🤖"}
       </span>
       <span className="zynvo-floating-text">
-        {isOpen ? "Close AI" : "Zynvo AI"}
+        {isOpen ? "Close" : "Help"}
       </span>
       {!isOpen && (
         <span

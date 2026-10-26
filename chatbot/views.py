@@ -85,12 +85,19 @@ class ChatAPIView(APIView):
                 "provider": "fallback_error"
             }
 
-        # 5. Save Assistant response to database
+        # 5. Save Assistant response to database with embedded action card for session persistence
+        saved_sources = list(ai_result.get("sources", []))
+        if ai_result.get("action_card"):
+            saved_sources.append({
+                "type": "action_card",
+                "card": ai_result["action_card"]
+            })
+
         ChatMessage.objects.create(
             session=session,
             role="assistant",
             content=ai_result["response"],
-            sources=ai_result.get("sources", []),
+            sources=saved_sources,
             suggested_followups=ai_result.get("suggested_followups", [])
         )
 
@@ -99,7 +106,8 @@ class ChatAPIView(APIView):
             "response": ai_result["response"],
             "sources": ai_result.get("sources", []),
             "suggested_followups": ai_result.get("suggested_followups", []),
-            "provider": ai_result.get("provider", "zynvo_engine")
+            "action_card": ai_result.get("action_card", None),
+            "provider": ai_result.get("provider", "sidekick_coworker_engine")
         }, status=status.HTTP_200_OK)
 
 
@@ -162,14 +170,20 @@ class ChatStatusAPIView(APIView):
     permission_classes = [AllowAny]
 
     def get(self, request):
-        has_openai = bool(os.getenv("OPENAI_API_KEY"))
+        try:
+            from dotenv import load_dotenv
+            load_dotenv(override=True)
+        except Exception:
+            pass
+
         has_gemini = bool(os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY"))
+        has_openai = bool(os.getenv("OPENAI_API_KEY"))
 
         active_provider = "zynvo_hybrid_engine"
-        if has_openai:
-            active_provider = "openai (gpt-4o-mini)"
-        elif has_gemini:
-            active_provider = "google-gemini"
+        if has_gemini:
+            active_provider = "google-gemini (pure LLM)"
+        elif has_openai:
+            active_provider = "openai (pure LLM)"
 
         product_count = Product.objects.filter(is_available=True).count()
 

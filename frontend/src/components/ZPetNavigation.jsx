@@ -76,13 +76,29 @@ const SettingGearIcon = () => (
 );
 
 /**
+ * AI Help Bot Icon for 4th suggestion matching silhouette aesthetic
+ */
+const HelpBotIcon = () => (
+  <svg
+    viewBox="0 0 24 24"
+    fill="currentColor"
+    xmlns="http://www.w3.org/2000/svg"
+    className="pet-icon-svg"
+    aria-hidden="true"
+  >
+    <path d="M12 2a1.5 1.5 0 0 1 1.5 1.5V5h2A3.5 3.5 0 0 1 19 8.5V10h.5A2.5 2.5 0 0 1 22 12.5v2a2.5 2.5 0 0 1-2.5 2.5H19v1a3.5 3.5 0 0 1-3.5 3.5h-7A3.5 3.5 0 0 1 5 18v-1h-.5A2.5 2.5 0 0 1 2 14.5v-2A2.5 2.5 0 0 1 4.5 10H5V8.5A3.5 3.5 0 0 1 8.5 5h2V3.5A1.5 1.5 0 0 1 12 2zm-3.5 5A1.5 1.5 0 0 0 7 8.5V18a1.5 1.5 0 0 0 1.5 1.5h7a1.5 1.5 0 0 0 1.5-1.5V8.5A1.5 1.5 0 0 0 15.5 7h-7zM9 11a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3zm6 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3zm-5 5.2h4a.8.8 0 0 1 0 1.6h-4a.8.8 0 0 1 0-1.6z" />
+  </svg>
+);
+
+/**
  * ZPetNavigation Component - Premium Gold Edition with Shimmer & Sparkles
  *
  * Primary Color: #D4AF37
- * Radial Layout: Dog (Top), Cat (Top-Left), Setting / Other Pets (Top-Right)
+ * Radial Layout: Dog, Cat, Other Pets, Help Bot (4th Suggestion)
  */
 export default function ZPetNavigation({
   onSelectPet,
+  onOpenHelp,
   customRoutes = {
     Dog: "/home?pet=dog",
     Cat: "/home?pet=cat",
@@ -161,6 +177,15 @@ export default function ZPetNavigation({
   const handleItemClick = (key) => {
     setIsExpanded(false);
 
+    if (key === "Help") {
+      if (onOpenHelp) {
+        onOpenHelp();
+      } else {
+        window.dispatchEvent(new CustomEvent("open-ai-chat"));
+      }
+      return;
+    }
+
     if (onSelectPet) {
       onSelectPet(key);
     } else {
@@ -192,14 +217,15 @@ export default function ZPetNavigation({
         <div className="z-main-glow" aria-hidden="true" />
 
         {/* =====================================================
-            CONNECTOR STEMS (Radiating from Gold Z to the 3 icons)
+            CONNECTOR STEMS (Radiating from Gold Z to the 4 icons)
         ===================================================== */}
         <div className="z-connector z-connector-dog" aria-hidden="true" />
         <div className="z-connector z-connector-cat" aria-hidden="true" />
         <div className="z-connector z-connector-filter" aria-hidden="true" />
+        <div className="z-connector z-connector-help" aria-hidden="true" />
 
         {/* =====================================================
-            1. DOG ICON (Centered Above Z)
+            1. DOG ICON
         ===================================================== */}
         <button
           type="button"
@@ -214,7 +240,7 @@ export default function ZPetNavigation({
         </button>
 
         {/* =====================================================
-            2. CAT ICON (Diagonally Upper-Left of Z)
+            2. CAT ICON
         ===================================================== */}
         <button
           type="button"
@@ -229,7 +255,7 @@ export default function ZPetNavigation({
         </button>
 
         {/* =====================================================
-            3. SETTING / OTHERS ICON (Diagonally Upper-Right of Z)
+            3. SETTING / OTHERS ICON
         ===================================================== */}
         <button
           type="button"
@@ -241,6 +267,21 @@ export default function ZPetNavigation({
         >
           <SettingGearIcon />
           <span className="pet-tooltip-badge">Other Pets</span>
+        </button>
+
+        {/* =====================================================
+            4. HELP BOT ICON (4th Suggestion)
+        ===================================================== */}
+        <button
+          type="button"
+          className="pet-btn pet-btn-help"
+          onClick={() => handleItemClick("Help")}
+          aria-label="Help Bot (Chat with AI Assistant)"
+          title="Help Bot — Chat with our AI Pet Assistant"
+          tabIndex={isExpanded ? 0 : -1}
+        >
+          <HelpBotIcon />
+          <span className="pet-tooltip-badge">Help Bot</span>
         </button>
 
         {/* =====================================================

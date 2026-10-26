@@ -10,6 +10,7 @@ import {
   FaClipboardList,
   FaCog,
   FaTicketAlt,
+  FaChartLine,
 } from "react-icons/fa";
 
 
@@ -52,6 +53,16 @@ function Sidebar() {
 
       <nav>
 
+        {/* BI & Analytics Suite */}
+        <Link
+          to="/admin/analytics"
+          className="menu-item analytics-highlight"
+        >
+          <span style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            <FaChartLine style={{ color: "#3b82f6" }} /> BI &amp; Analytics
+          </span>
+          <span className="badge-new">NEW</span>
+        </Link>
 
         {/* Products - Everyone */}
 

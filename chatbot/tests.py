@@ -140,3 +140,36 @@ class ChatbotEngineTestCase(TestCase):
         data = response.json()
         # Script tags must be stripped
         self.assertNotIn("<script>", data["response"])
+
+    def test_hybrid_retrieval_incorporates_internal_and_web_knowledge(self):
+        """Verifies knowledge retriever fetches both internal catalog/policies and real-time web results."""
+        retrieval = KnowledgeRetriever.retrieve_relevant_context(
+            "Do you have puppy food and what are the nutritional guidelines?"
+        )
+        # 1. Internal dataset
+        self.assertTrue(retrieval["has_project_data"])
+        self.assertTrue(len(retrieval["products"]) > 0)
+        self.assertEqual(retrieval["products"][0]["name"], "Drools Puppy Super Diet")
+
+        # 2. External real-time web search
+        self.assertTrue(retrieval["has_web_data"])
+        self.assertTrue(len(retrieval["web_results"]) > 0)
+        first_web = retrieval["web_results"][0]
+        self.assertIn("title", first_web)
+        self.assertIn("url", first_web)
+        self.assertIn("snippet", first_web)
+
+    def test_chat_response_incorporates_web_sources(self):
+        """Verifies chat endpoint returns complementary web citations in sources."""
+        response = self.client.post(
+            reverse("chat-message"),
+            {"message": "What are the recommended nutrition and exercise standards for a Golden Retriever?"},
+            format="json"
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.json()
+        self.assertTrue(len(data["response"]) > 20)
+        # Check that web sources are returned for client-side citation
+        web_sources = [s for s in data.get("sources", []) if s.get("type") == "web"]
+        self.assertTrue(len(web_sources) > 0)
+        self.assertTrue(any(w.get("url") for w in web_sources))

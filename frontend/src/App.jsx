@@ -515,6 +515,7 @@ import OrderList from "./admin/OrderList";
 
 import CouponList from "./admin/CouponList";
 import AddCoupon from "./admin/AddCoupon";
+import AnalyticsDashboard from "./admin/AnalyticsDashboard";
 
 import "./App.css";
 import Zenvefashion from "./pages/Zenvefashion.jsx";
@@ -932,6 +933,16 @@ function AppContent() {
               }
             />
 
+            {/* Business Intelligence & Analytics Suite */}
+            <Route
+              path="/admin/analytics"
+              element={<AnalyticsDashboard />}
+            />
+            <Route
+              path="/analytics"
+              element={<AnalyticsDashboard />}
+            />
+
 
             {/* 404 */}
             <Route
@@ -953,15 +964,9 @@ function AppContent() {
       {/* Footer */}
       {!hideLayout && <Footer />}
 
-      {/* Floating Interactive Z Pet Navigation */}
-      {!hideLayout && <ZPetNavigation />}
-
-      {/* Floating Always-Visible AI Assistant Button */}
-      {!hideLayout && (
-        <FloatingChatButton
-          isOpen={isAiModalOpen}
-          onClick={() => setIsAiModalOpen((prev) => !prev)}
-        />
+      {/* Floating Interactive Z Pet Navigation with integrated Help Bot (4th suggestion) */}
+      {!hideLayout && !isAiModalOpen && (
+        <ZPetNavigation onOpenHelp={() => setIsAiModalOpen(true)} />
       )}
 
       {/* Global Zynvo AI Assistant Drawer */}

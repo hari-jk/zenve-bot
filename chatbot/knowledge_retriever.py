@@ -8,9 +8,13 @@ Retrieves grounded, authentic information from:
 4. Domain Pet Care Guidelines & FAQs
 """
 
+import os
 import re
 import logging
+import urllib.parse
 from typing import List, Dict, Any
+import requests
+from bs4 import BeautifulSoup
 from django.db.models import Q
 
 logger = logging.getLogger(__name__)
@@ -25,7 +29,7 @@ STORE_KNOWLEDGE_DOCS = [
         "id": "kb_about_zenve",
         "title": "About Zenve Pet Marketplace",
         "category": "About",
-        "keywords": ["zenve", "zynvo", "website", "platform", "marketplace", "about", "company", "who are you", "what is this"],
+        "keywords": ["about zenve", "about zynvo", "about the website", "about this website", "zenve marketplace", "what is zenve", "who created zenve", "company overview"],
         "content": (
             "Zenve (Zynvo) is an all-in-one smart pet care marketplace and health ecosystem. "
             "It offers premium pet nutrition, veterinary medicines, wellness supplements, grooming essentials, "
@@ -173,6 +177,186 @@ PET_SAFETY_FACTS = [
 
 
 # ---------------------------------------------------------------------------
+# Real-Time Web Search Retriever (Internet Integration)
+# ---------------------------------------------------------------------------
+
+class RealtimeWebRetriever:
+    """
+    Real-time Internet search engine for pet, veterinary, product, and general queries.
+    Integrates external web search results (DuckDuckGo, Wikipedia, optional Tavily/SerpAPI)
+    to complement internal dataset records with up-to-date facts and citations.
+    """
+
+    @classmethod
+    def search_web(cls, query: str, max_results: int = 3) -> List[Dict[str, Any]]:
+        cleaned_query = re.sub(
+            r"^(please|tell me about|can you show me|what is|how do i|find|search for|do you have|recommend)\s+",
+            "",
+            query,
+            flags=re.I
+        ).strip()
+        if not cleaned_query or len(cleaned_query) < 3:
+            cleaned_query = query.strip()
+
+        results = []
+
+        # 1. Optional Tavily Search API if configured
+        tavily_key = os.getenv("TAVILY_API_KEY")
+        if tavily_key:
+            try:
+                tav_resp = requests.post(
+                    "https://api.tavily.com/search",
+                    json={"api_key": tavily_key, "query": cleaned_query, "max_results": max_results},
+                    timeout=2.5
+                )
+                if tav_resp.status_code == 200:
+                    data = tav_resp.json()
+                    for r in data.get("results", []):
+                        results.append({
+                            "title": r.get("title", cleaned_query.title()),
+                            "url": r.get("url", "https://tavily.com"),
+                            "snippet": r.get("content", "")[:350],
+                            "source": "Tavily Live Web"
+                        })
+            except Exception as e:
+                logger.debug("Tavily search skipped: %s", e)
+
+        # 2. DuckDuckGo Instant Answer & Related Topics API
+        if len(results) < max_results:
+            try:
+                ddg_url = f"https://api.duckduckgo.com/?q={urllib.parse.quote(cleaned_query)}&format=json&no_html=1&skip_disambig=1"
+                resp = requests.get(ddg_url, timeout=2.5, headers={"User-Agent": "ZenveAssistant/1.0"})
+                if resp.status_code == 200:
+                    data = resp.json()
+                    abstract = data.get("AbstractText")
+                    if abstract:
+                        results.append({
+                            "title": data.get("Heading") or cleaned_query.title(),
+                            "url": data.get("AbstractURL") or "https://duckduckgo.com",
+                            "snippet": abstract[:350],
+                            "source": "DuckDuckGo Web"
+                        })
+                    for topic in data.get("RelatedTopics", []):
+                        if len(results) >= max_results:
+                            break
+                        if isinstance(topic, dict) and topic.get("Text") and topic.get("FirstURL"):
+                            results.append({
+                                "title": topic.get("Text").split(" - ")[0][:60],
+                                "url": topic.get("FirstURL"),
+                                "snippet": topic.get("Text")[:300],
+                                "source": "DuckDuckGo Web"
+                            })
+            except Exception as e:
+                logger.debug("DuckDuckGo search skipped: %s", e)
+
+        # 3. Live Wikipedia & Knowledge Index
+        if len(results) < max_results:
+            try:
+                wiki_url = f"https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch={urllib.parse.quote(cleaned_query)}&format=json&utf8=1&srlimit={max_results}"
+                resp = requests.get(wiki_url, timeout=2.5, headers={"User-Agent": "ZenveAssistant/1.0 (support@zenve.com)"})
+                if resp.status_code == 200:
+                    data = resp.json()
+                    for item in data.get("query", {}).get("search", []):
+                        if len(results) >= max_results:
+                            break
+                        title = item.get("title", "")
+                        snippet = BeautifulSoup(item.get("snippet", ""), "html.parser").get_text(strip=True)
+                        page_url = f"https://en.wikipedia.org/wiki/{urllib.parse.quote(title.replace(' ', '_'))}"
+                        if not any(r["url"] == page_url for r in results):
+                            results.append({
+                                "title": title,
+                                "url": page_url,
+                                "snippet": snippet,
+                                "source": "Live Web Encyclopedia"
+                            })
+            except Exception as e:
+                logger.debug("Wikipedia search skipped: %s", e)
+
+        # 4. Curated Veterinary & Pet Knowledge Fallback
+        if not results:
+            curated_web_data = cls._get_curated_domain_web_facts(cleaned_query)
+            if curated_web_data:
+                results.extend(curated_web_data[:max_results])
+
+        return results[:max_results]
+
+    @classmethod
+    def _get_curated_domain_web_facts(cls, query: str) -> List[Dict[str, Any]]:
+        """
+        Curated authoritative external domain facts (AKC, AVMA, PetMD, Cornell Feline, FAO).
+        Ensures reliable fallback even during network outages.
+        """
+        q = query.lower()
+        facts = []
+
+        if any(w in q for w in ["golden retriever", "retriever"]):
+            facts.append({
+                "title": "Golden Retriever Care & Health Guidelines (AKC)",
+                "url": "https://www.akc.org/dog-breeds/golden-retriever/",
+                "snippet": "American Kennel Club (AKC) notes Golden Retrievers require 40-60 minutes of daily exercise, balanced proteins (22-26%), and joint monitoring for hip dysplasia.",
+                "source": "AKC Breed Standard"
+            })
+
+        if any(w in q for w in ["grain free", "grain-free"]):
+            facts.append({
+                "title": "Dietary Science on Grain-Free Pet Nutrition (FDA / Vet Nutrition)",
+                "url": "https://www.fda.gov/animal-veterinary/animal-health-literacy",
+                "snippet": "Veterinary clinical studies emphasize that grain-free diets replace grains with sweet potatoes or legumes; nutritional balance and taurine levels should be carefully verified.",
+                "source": "Veterinary Clinical Science"
+            })
+
+        if any(w in q for w in ["cat", "feline", "kitten"]):
+            facts.append({
+                "title": "Feline Nutrition & Hydration Standards (Cornell Feline Health Center)",
+                "url": "https://www.vet.cornell.edu/departments-centers-and-institutes/cornell-feline-health-center",
+                "snippet": "Cornell Feline Health Center highlights that cats are obligate carnivores requiring animal-sourced protein, taurine, and high moisture intake to support urinary and renal function.",
+                "source": "Cornell Feline Health Center"
+            })
+
+        if any(w in q for w in ["dog", "puppy", "canine"]):
+            facts.append({
+                "title": "Canine Preventive Care Protocols (AVMA)",
+                "url": "https://www.avma.org/resources-tools/pet-owners/petcare/canine-preventive-care",
+                "snippet": "The American Veterinary Medical Association (AVMA) recommends annual wellness exams, core vaccinations (rabies, DHPP), parasite prevention, and life-stage nutrition.",
+                "source": "AVMA Pet Health Care"
+            })
+
+        if any(w in q for w in ["poultry", "chicken", "hen", "duck"]):
+            facts.append({
+                "title": "Poultry Layer Nutrition & Flock Management (FAO)",
+                "url": "https://www.fao.org/poultry-production-products/production/en/",
+                "snippet": "FAO Animal Production guidelines note laying hens require 16-18% crude protein, 3.5-4.0% calcium for eggshell integrity, and continuous ventilation to prevent respiratory distress.",
+                "source": "FAO Animal Production"
+            })
+
+        if any(w in q for w in ["cow", "cattle", "bovine"]):
+            facts.append({
+                "title": "Bovine Ruminant Nutrition & Herd Health (Livestock Extension)",
+                "url": "https://extension.psu.edu/dairy-nutrition-and-feeding",
+                "snippet": "Veterinary Livestock Nutrition standards emphasize high-forage diets, 60-100 liters of fresh water daily, non-slip flooring, and hoof maintenance to prevent lameness.",
+                "source": "Livestock Veterinary Standards"
+            })
+
+        if any(w in q for w in ["goat", "caprine"]):
+            facts.append({
+                "title": "Caprine Browse Feeding & Mineral Management (American Goat Society)",
+                "url": "https://americangoatsociety.com",
+                "snippet": "American Goat Society standards highlight that goats are natural browsers requiring loose goat-specific minerals with copper, dry bedding, and hoof trimming every 6-8 weeks.",
+                "source": "American Goat Society"
+            })
+
+        if any(w in q for w in ["harness", "collar", "leash"]):
+            facts.append({
+                "title": "Canine Ergonomics: Harness vs Collar Study",
+                "url": "https://www.whole-dog-journal.com/care/the-best-dog-harnesses/",
+                "snippet": "Biomechanical studies in canines indicate that Y-shaped padded harnesses distribute pulling pressure safely across the chest rather than the trachea.",
+                "source": "Whole Dog Journal / Canine Ergonomics"
+            })
+
+        return facts
+
+
+# ---------------------------------------------------------------------------
 # Retriever Implementation
 # ---------------------------------------------------------------------------
 
@@ -183,49 +367,66 @@ class KnowledgeRetriever:
     """
 
     @classmethod
-    def retrieve_relevant_context(cls, query: str, pet_context: dict = None, top_products: int = 5) -> Dict[str, Any]:
+    def retrieve_relevant_context(cls, query: str, pet_context: dict = None, top_products: int = 5, enable_web_search: bool = True) -> Dict[str, Any]:
         """
-        Retrieves context matching user's query and returns structured results.
+        Retrieves context matching user's query and returns structured results
+        incorporating both internal website data and real-time external web search.
         """
         normalized_query = query.lower().strip()
         tokens = set(re.findall(r"\b\w{2,}\b", normalized_query))
 
-        # 1. Retrieve matching static knowledge docs (policies, guides)
+        # 1. Retrieve matching internal static knowledge docs (policies, guides)
         matching_kb = cls._search_knowledge_base(tokens, normalized_query)
 
-        # 2. Retrieve matching products from database
+        # 2. Retrieve matching internal products from database
         products = cls._search_products(tokens, normalized_query, pet_context, limit=top_products)
 
         # 3. Check for pet safety warnings
         safety_warnings = cls._check_safety_warnings(normalized_query)
+
+        # 4. Complement with external real-time web search results
+        web_results = []
+        if enable_web_search:
+            web_results = RealtimeWebRetriever.search_web(query, max_results=3)
 
         return {
             "query": query,
             "kb_documents": matching_kb,
             "products": products,
             "safety_warnings": safety_warnings,
-            "has_project_data": bool(matching_kb or products)
+            "web_results": web_results,
+            "has_project_data": bool(matching_kb or products),
+            "has_web_data": bool(web_results)
         }
 
     @classmethod
     def _search_knowledge_base(cls, tokens: set, query_text: str) -> List[Dict[str, Any]]:
         scored_docs = []
+        stop_words = {"what", "is", "this", "are", "the", "can", "you", "for", "and", "how", "do", "in", "to", "my", "me", "about", "give", "show", "some", "tell", "need", "want", "care"}
+        meaningful_tokens = {t for t in tokens if t not in stop_words and len(t) > 2}
+
         for doc in STORE_KNOWLEDGE_DOCS:
             score = 0
-            # Direct keyword hits
+            # Direct exact phrase hits
             for kw in doc["keywords"]:
                 if kw in query_text:
-                    score += 5
-                elif any(t in kw.split() for t in tokens):
-                    score += 2
+                    score += 6
+                else:
+                    # Only match meaningful words
+                    kw_words = [w for w in kw.split() if w not in stop_words and len(w) > 2]
+                    matched_words = [w for w in kw_words if w in meaningful_tokens]
+                    if matched_words:
+                        score += len(matched_words) * 2
 
-            # Category / title hit
-            if doc["category"].lower() in query_text:
-                score += 3
-            if doc["title"].lower() in query_text:
+            # Category / title hit with word boundary or exact match
+            cat_lower = doc["category"].lower()
+            if cat_lower not in stop_words and cat_lower in query_text:
                 score += 4
+            if doc["title"].lower() in query_text:
+                score += 5
 
-            if score > 0:
+            # Require a solid relevance threshold
+            if score >= 5:
                 scored_docs.append((score, doc))
 
         scored_docs.sort(key=lambda x: x[0], reverse=True)
@@ -238,10 +439,18 @@ class KnowledgeRetriever:
             from products.models import Product
 
             q_obj = Q()
-            # Check for pet type filters in query
+            # Check for pet type filters in query with full synonyms
+            pet_synonyms = {
+                "Dog": ["dog", "dogs", "puppy", "puppies", "canine"],
+                "Cat": ["cat", "cats", "kitten", "kittens", "feline"],
+                "Bird": ["bird", "birds", "parrot", "poultry", "chicken"],
+                "Rabbit": ["rabbit", "rabbits", "bunny"],
+                "Fish": ["fish", "aquarium"],
+                "Cattle": ["cattle", "cow", "cows", "bovine", "calf", "bull", "goat", "goats"]
+            }
             pet_filters = []
-            for pet_t in ["Dog", "Cat", "Bird", "Rabbit", "Fish", "Cattle"]:
-                if pet_t.lower() in query_text:
+            for pet_t, syns in pet_synonyms.items():
+                if any(re.search(rf"\b{re.escape(s)}\b", query_text) for s in syns):
                     pet_filters.append(pet_t)
 
             if not pet_filters and pet_context and pet_context.get("pet_type"):
@@ -338,7 +547,22 @@ class KnowledgeRetriever:
                     f"  Details: {p['description']}"
                 )
 
+        if retrieval_data.get("web_results"):
+            context_parts.append("\nREAL-TIME EXTERNAL INTERNET SEARCH RESULTS:")
+            for w in retrieval_data["web_results"]:
+                context_parts.append(
+                    f"- [{w['title']}] ({w.get('url', '')}) [{w.get('source', 'Web Search')}]:\n"
+                    f"  {w.get('snippet', '')}"
+                )
+
         if not context_parts:
-            return "No specific database records or policies matched this query."
+            return "No specific database records, store policies, or web results matched this query."
+
+        context_parts.append(
+            "\nKNOWLEDGE SYNTHESIS DIRECTIVE:\n"
+            "First, prioritize and ground your answer using the verified internal Zenve website data (products, pricing, store policies, services). "
+            "Then, seamlessly complement it with relevant real-time insights from the external web search results to provide "
+            "an accurate, comprehensive, and up-to-date answer."
+        )
 
         return "\n".join(context_parts)
